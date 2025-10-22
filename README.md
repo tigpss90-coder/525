@@ -14,6 +14,44 @@ A professional web application for importing, visually editing, and exporting HT
 - **Element Deletion**: Remove selected elements with confirmation dialog
 - **HTML Export**: Download edited content as `.html` with metadata tag
 - **Keyboard Shortcuts**: Delete key for element removal
+- ech Stack Verification
+
+ The following technologies are used:
+
+Next.js with App Router: CONFIRMED
+
+Next.js version 13.5.1 is installed
+Uses the App Router architecture (app directory structure with layout.tsx and page.tsx)
+Modern Next.js configuration with proper routing setup
+
+TypeScript: CONFIRMED
+
+TypeScript 5.2.2 is installed and configured
+tsconfig.json is properly set up with strict mode
+All main files use .ts and .tsx extensions
+Type definitions are used throughout (interfaces, type annotations)
+
+Tailwind CSS: CONFIRMED
+
+Tailwind CSS 3.3.3 is installed
+tailwind.config.ts is properly configured
+PostCSS configuration is present
+Tailwind utilities are used in components
+shadcn/ui component library is integrated (which is built on Tailwind)
+
+SOLID Architecture Principles: CONFIRMED
+
+The README explicitly documents how SOLID principles are applied
+Code structure demonstrates SOLID principles in practice:
+Single Responsibility: Each component has one clear purpose (ImportPanel, CanvasStage, PropertiesPanel, Toolbar)
+Open/Closed: Element types can be extended, utility functions are modular
+Liskov Substitution: Standard React prop interfaces are used
+Interface Segregation: Components receive only necessary props
+Dependency Inversion: Components depend on TypeScript interfaces, not concrete implementations
+However, the implementation is more functional/component-based rather than class-based OOP (which is common in modern React)
+Utility functions are pure and separated in lib directory
+Type definitions are properly abstracted
+Summary: All four technologies from your tech stack are present and properly implemented. The project is a well-structured Next.js application following modern React and TypeScript best practices with SOLID principles applied at the component and module level.
 
 ## Setup Instructions
 
