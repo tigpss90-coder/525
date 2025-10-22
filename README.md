@@ -14,9 +14,9 @@ A professional web application for importing, visually editing, and exporting HT
 - **Element Deletion**: Remove selected elements with confirmation dialog
 - **HTML Export**: Download edited content as `.html` with metadata tag
 - **Keyboard Shortcuts**: Delete key for element removal
-- ech Stack Verification
+- tech Stack Verification
 
- The following technologies are used:
+#FOLLOWING TECH STACKS CONFIRMED 
 
 Next.js with App Router: CONFIRMED
 
