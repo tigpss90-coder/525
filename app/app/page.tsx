@@ -26,7 +26,7 @@ export default function AppPage() {
   };
 
   const handleContentChange = (html: string) => {
-    stageContentRef.current = html;
+    setHtmlContent(html);
   };
 
   const handleAddText = () => {
@@ -54,6 +54,7 @@ export default function AppPage() {
       selectedElement.element.remove();
       setSelectedElement(null);
       setShowDeleteDialog(false);
+      handleContentChange(stageContentRef.current);
     }
   };
 
@@ -87,7 +88,7 @@ export default function AppPage() {
 
         <PropertiesPanel
           selectedElement={selectedElement}
-          onContentChange={() => handleContentChange(stageContentRef.current)}
+          onContentChange={handleContentChange}
         />
       </div>
 

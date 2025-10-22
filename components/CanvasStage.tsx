@@ -87,15 +87,14 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
 
     selectedElement.element.style.left = `${newLeft}px`;
     selectedElement.element.style.top = `${newTop}px`;
-
-    if (stageRef.current) {
-      onContentChange(stageRef.current.innerHTML);
-    }
-  }, [isDragging, selectedElement, dragStart, elementStart, onContentChange]);
+  }, [isDragging, selectedElement, dragStart, elementStart]);
 
   const handleMouseUp = useCallback(() => {
+    if (isDragging && stageRef.current) {
+      onContentChange(stageRef.current.innerHTML);
+    }
     setIsDragging(false);
-  }, []);
+  }, [isDragging, onContentChange]);
 
   useEffect(() => {
     if (isDragging) {

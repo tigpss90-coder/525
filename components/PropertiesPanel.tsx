@@ -13,7 +13,7 @@ import { validateWidth, validateHeight, validateFontSize, validateFontWeight, DE
 
 interface PropertiesPanelProps {
   selectedElement: SelectedElement | null;
-  onContentChange: () => void;
+  onContentChange: (html: string) => void;
 }
 
 export function PropertiesPanel({ selectedElement, onContentChange }: PropertiesPanelProps) {
@@ -94,7 +94,10 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
     if (color) element.style.color = color;
     if (fontWeight) element.style.fontWeight = fontWeight;
 
-    onContentChange();
+    const container = element.parentElement;
+    if (container) {
+      onContentChange(container.innerHTML);
+    }
   };
 
   const handleImageUpdate = () => {
@@ -123,6 +126,10 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
 
     const img = selectedElement.element as HTMLImageElement;
 
+    if (imageAlt) img.alt = imageAlt;
+
+    const container = img.parentElement;
+
     if (imageSrc && imageSrc !== img.src) {
       img.src = imageSrc;
 
@@ -133,15 +140,17 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
         if (imageHeight && !isNaN(heightValue)) {
           img.height = heightValue;
         }
-        onContentChange();
+        if (container) {
+          onContentChange(container.innerHTML);
+        }
       };
     } else {
       if (imageWidth && !isNaN(widthValue)) img.width = widthValue;
       if (imageHeight && !isNaN(heightValue)) img.height = heightValue;
-      onContentChange();
+      if (container) {
+        onContentChange(container.innerHTML);
+      }
     }
-
-    if (imageAlt) img.alt = imageAlt;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
