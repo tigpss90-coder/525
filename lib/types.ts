@@ -24,10 +24,3 @@ export interface SelectedElement {
   isImage: boolean;
   isText: boolean;
 }
-
-export interface SelectionBox {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-}

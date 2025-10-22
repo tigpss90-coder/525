@@ -18,7 +18,7 @@ interface ToolbarProps {
 
 export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, hasSelection }: ToolbarProps) {
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col h-screen" role="complementary" aria-label="Toolbar">
+    <aside className="w-64 bg-slate-900 text-white flex flex-col h-screen">
       <div className="p-6 border-b border-slate-700">
         <div className="flex items-center gap-3">
           <div className="relative w-12 h-12">
@@ -36,7 +36,7 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto" role="navigation" aria-label="Main toolbar">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         <Link href="/">
           <Button
             variant="ghost"
@@ -58,9 +58,8 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
             variant="ghost"
             onClick={onAddText}
             className="w-full justify-start text-white hover:bg-slate-800 hover:text-white"
-            aria-label="Add text element to canvas"
           >
-            <Type className="w-4 h-4 mr-3" aria-hidden="true" />
+            <Type className="w-4 h-4 mr-3" />
             Add Text
           </Button>
 
@@ -68,9 +67,8 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
             variant="ghost"
             onClick={onAddImage}
             className="w-full justify-start text-white hover:bg-slate-800 hover:text-white"
-            aria-label="Add image element to canvas"
           >
-            <ImageIcon className="w-4 h-4 mr-3" aria-hidden="true" />
+            <ImageIcon className="w-4 h-4 mr-3" />
             Add Image
           </Button>
 
@@ -79,10 +77,8 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
             onClick={onDelete}
             disabled={!hasSelection}
             className="w-full justify-start text-white hover:bg-slate-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Delete selected element"
-            aria-disabled={!hasSelection}
           >
-            <Trash2 className="w-4 h-4 mr-3" aria-hidden="true" />
+            <Trash2 className="w-4 h-4 mr-3" />
             Delete
           </Button>
         </div>
@@ -96,9 +92,8 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
             variant="ghost"
             onClick={onExport}
             className="w-full justify-start text-white hover:bg-slate-800 hover:text-white"
-            aria-label="Export canvas as HTML file"
           >
-            <Download className="w-4 h-4 mr-3" aria-hidden="true" />
+            <Download className="w-4 h-4 mr-3" />
             Export HTML
           </Button>
         </div>

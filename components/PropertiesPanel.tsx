@@ -97,7 +97,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
 
   if (!selectedElement) {
     return (
-      <div className="w-80 bg-gray-50 border-l p-4" role="complementary" aria-label="Properties panel">
+      <div className="w-80 bg-gray-50 border-l p-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Properties</CardTitle>
@@ -111,7 +111,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
   }
 
   return (
-    <div className="w-80 bg-gray-50 border-l p-4 overflow-auto" role="complementary" aria-label="Properties panel">
+    <div className="w-80 bg-gray-50 border-l p-4 overflow-auto">
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">Element Properties</CardTitle>
@@ -129,7 +129,6 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
                   className="min-h-[80px]"
-                  aria-label="Edit text content"
                 />
               </div>
 
@@ -173,7 +172,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                 />
               </div>
 
-              <Button onClick={handleTextUpdate} className="w-full" aria-label="Apply text changes">
+              <Button onClick={handleTextUpdate} className="w-full">
                 Apply Changes
               </Button>
             </>
@@ -234,7 +233,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                 </div>
               </div>
 
-              <Button onClick={handleImageUpdate} className="w-full" aria-label="Apply image changes">
+              <Button onClick={handleImageUpdate} className="w-full">
                 Apply Changes
               </Button>
             </>
