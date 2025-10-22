@@ -1,6 +1,6 @@
 'use client';
 
-import { Type, ImageIcon, Trash2, Download, FileUp, Home } from 'lucide-react';
+import { Type, ImageIcon, Trash2, Download, FileUp, Home, Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
@@ -13,10 +13,14 @@ interface ToolbarProps {
   onDelete: () => void;
   onExport: () => void;
   onImport: (html: string) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
   hasSelection: boolean;
 }
 
-export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, hasSelection }: ToolbarProps) {
+export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, onUndo, onRedo, canUndo, canRedo, hasSelection }: ToolbarProps) {
   return (
     <aside className="w-64 bg-slate-900 text-white flex flex-col h-screen">
       <div className="p-6 border-b border-slate-700">
@@ -46,6 +50,34 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, h
             Home
           </Button>
         </Link>
+
+        <Separator className="my-4 bg-slate-700" />
+
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-slate-400 px-3 mb-2">HISTORY</p>
+
+          <div className="flex gap-2 px-2">
+            <Button
+              variant="ghost"
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="flex-1 justify-center text-white hover:bg-slate-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Undo"
+            >
+              <Undo className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={onRedo}
+              disabled={!canRedo}
+              className="flex-1 justify-center text-white hover:bg-slate-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Redo"
+            >
+              <Redo className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
 
         <Separator className="my-4 bg-slate-700" />
 

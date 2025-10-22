@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { validateWidth, validateHeight, validateFontSize, validateFontWeight, DEFAULT_LIMITS } from '@/lib/validation';
 
 interface PropertiesPanelProps {
   selectedElement: SelectedElement | null;
@@ -24,6 +26,9 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
   const [imageAlt, setImageAlt] = useState('');
   const [imageWidth, setImageWidth] = useState('');
   const [imageHeight, setImageHeight] = useState('');
+
+  const [validationError, setValidationError] = useState('');
+  const [showValidationDialog, setShowValidationDialog] = useState(false);
 
   useEffect(() => {
     if (!selectedElement) return;
@@ -61,6 +66,27 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
   const handleTextUpdate = () => {
     if (!selectedElement || !selectedElement.isText) return;
 
+    const fontSizeValue = parseInt(fontSize.replace('px', ''));
+    const fontWeightValue = parseInt(fontWeight);
+
+    if (fontSize && !isNaN(fontSizeValue)) {
+      const fontSizeValidation = validateFontSize(fontSizeValue);
+      if (!fontSizeValidation.isValid) {
+        setValidationError(fontSizeValidation.error!);
+        setShowValidationDialog(true);
+        return;
+      }
+    }
+
+    if (fontWeight && !isNaN(fontWeightValue)) {
+      const fontWeightValidation = validateFontWeight(fontWeightValue);
+      if (!fontWeightValidation.isValid) {
+        setValidationError(fontWeightValidation.error!);
+        setShowValidationDialog(true);
+        return;
+      }
+    }
+
     const element = selectedElement.element;
     element.textContent = textContent;
 
@@ -74,14 +100,48 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
   const handleImageUpdate = () => {
     if (!selectedElement || !selectedElement.isImage) return;
 
+    const widthValue = parseInt(imageWidth);
+    const heightValue = parseInt(imageHeight);
+
+    if (imageWidth && !isNaN(widthValue)) {
+      const widthValidation = validateWidth(widthValue);
+      if (!widthValidation.isValid) {
+        setValidationError(widthValidation.error!);
+        setShowValidationDialog(true);
+        return;
+      }
+    }
+
+    if (imageHeight && !isNaN(heightValue)) {
+      const heightValidation = validateHeight(heightValue);
+      if (!heightValidation.isValid) {
+        setValidationError(heightValidation.error!);
+        setShowValidationDialog(true);
+        return;
+      }
+    }
+
     const img = selectedElement.element as HTMLImageElement;
 
-    if (imageSrc) img.src = imageSrc;
-    if (imageAlt) img.alt = imageAlt;
-    if (imageWidth) img.width = parseInt(imageWidth);
-    if (imageHeight) img.height = parseInt(imageHeight);
+    if (imageSrc && imageSrc !== img.src) {
+      img.src = imageSrc;
 
-    onContentChange();
+      img.onload = () => {
+        if (imageWidth && !isNaN(widthValue)) {
+          img.width = widthValue;
+        }
+        if (imageHeight && !isNaN(heightValue)) {
+          img.height = heightValue;
+        }
+        onContentChange();
+      };
+    } else {
+      if (imageWidth && !isNaN(widthValue)) img.width = widthValue;
+      if (imageHeight && !isNaN(heightValue)) img.height = heightValue;
+      onContentChange();
+    }
+
+    if (imageAlt) img.alt = imageAlt;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +149,15 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setImageSrc(event.target?.result as string);
+        const newSrc = event.target?.result as string;
+        setImageSrc(newSrc);
+
+        const tempImg = new Image();
+        tempImg.onload = () => {
+          setImageWidth(tempImg.naturalWidth.toString());
+          setImageHeight(tempImg.naturalHeight.toString());
+        };
+        tempImg.src = newSrc;
       };
       reader.readAsDataURL(file);
     }
@@ -142,6 +210,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                   onChange={(e) => setFontSize(e.target.value)}
                   placeholder="16px"
                 />
+                <p className="text-xs text-gray-500">Range: {DEFAULT_LIMITS.fontSize.min}-{DEFAULT_LIMITS.fontSize.max}px</p>
               </div>
 
               <div className="space-y-2">
@@ -170,6 +239,7 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                   onChange={(e) => setFontWeight(e.target.value)}
                   placeholder="400, 700, bold"
                 />
+                <p className="text-xs text-gray-500">Range: {DEFAULT_LIMITS.fontWeight.min}-{DEFAULT_LIMITS.fontWeight.max} (multiples of 100)</p>
               </div>
 
               <Button onClick={handleTextUpdate} className="w-full">
@@ -212,25 +282,28 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="image-width">Width (px)</Label>
-                  <Input
-                    id="image-width"
-                    type="number"
-                    value={imageWidth}
-                    onChange={(e) => setImageWidth(e.target.value)}
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="image-width">Width (px)</Label>
+                    <Input
+                      id="image-width"
+                      type="number"
+                      value={imageWidth}
+                      onChange={(e) => setImageWidth(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image-height">Height (px)</Label>
+                    <Input
+                      id="image-height"
+                      type="number"
+                      value={imageHeight}
+                      onChange={(e) => setImageHeight(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="image-height">Height (px)</Label>
-                  <Input
-                    id="image-height"
-                    type="number"
-                    value={imageHeight}
-                    onChange={(e) => setImageHeight(e.target.value)}
-                  />
-                </div>
+                <p className="text-xs text-gray-500">Range: {DEFAULT_LIMITS.width.min}-{DEFAULT_LIMITS.width.max}px</p>
               </div>
 
               <Button onClick={handleImageUpdate} className="w-full">
@@ -246,6 +319,20 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={showValidationDialog} onOpenChange={setShowValidationDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exceeding Range Limit</AlertDialogTitle>
+            <AlertDialogDescription>
+              {validationError}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowValidationDialog(false)}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
