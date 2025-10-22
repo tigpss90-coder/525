@@ -1,105 +1,51 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { ImportPanel } from '@/components/ImportPanel';
-import { Toolbar } from '@/components/Toolbar';
-import { CanvasStage } from '@/components/CanvasStage';
-import { PropertiesPanel } from '@/components/PropertiesPanel';
-import { SelectedElement } from '@/lib/types';
-import { exportToHTML, downloadHTML, generateUniqueId } from '@/lib/html-utils';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
-export default function Home() {
-  const [htmlContent, setHtmlContent] = useState('');
-  const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const stageContentRef = useRef('');
+export default function LandingPage() {
+  const [isEntering, setIsEntering] = useState(false);
 
-  const handleImport = (html: string) => {
-    setHtmlContent(html);
-    setSelectedElement(null);
-    stageContentRef.current = html;
-  };
-
-  const handleContentChange = (html: string) => {
-    stageContentRef.current = html;
-  };
-
-  const handleAddText = () => {
-    const newTextId = generateUniqueId();
-    const newText = `<p id="${newTextId}" style="position: absolute; left: 50px; top: 50px; font-size: 16px; color: #000000;">New Text</p>`;
-    const updatedContent = stageContentRef.current + newText;
-    setHtmlContent(updatedContent);
-    stageContentRef.current = updatedContent;
-  };
-
-  const handleAddImage = () => {
-    const newImageId = generateUniqueId();
-    const newImage = `<img id="${newImageId}" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=300&h=300&fit=crop" alt="Placeholder" style="position: absolute; left: 100px; top: 100px; width: 200px; height: 200px; object-fit: cover;" />`;
-    const updatedContent = stageContentRef.current + newImage;
-    setHtmlContent(updatedContent);
-    stageContentRef.current = updatedContent;
-  };
-
-  const handleDelete = () => {
-    if (selectedElement) {
-      setShowDeleteDialog(true);
-    }
-  };
-
-  const confirmDelete = () => {
-    if (selectedElement) {
-      selectedElement.element.remove();
-      setSelectedElement(null);
-      setShowDeleteDialog(false);
-    }
-  };
-
-  const handleExport = () => {
-    const fullHTML = exportToHTML(stageContentRef.current);
-    downloadHTML(fullHTML, 'edited-poster.html');
+  const handleEnterApp = () => {
+    setIsEntering(true);
+    setTimeout(() => {
+      window.location.href = '/app';
+    }, 300);
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <ImportPanel onImport={handleImport} />
+    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 transition-opacity duration-300 ${isEntering ? 'opacity-0' : 'opacity-100'}`}>
+      <div className="text-center space-y-8 px-4">
+        <div className="relative w-64 h-64 mx-auto">
+          <Image
+            src="/image.png"
+            alt="SOL Logo"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
 
-      <Toolbar
-        onAddText={handleAddText}
-        onAddImage={handleAddImage}
-        onDelete={handleDelete}
-        onExport={handleExport}
-        hasSelection={!!selectedElement}
-      />
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold text-slate-900">
+            HTML Poster Editor
+          </h1>
+          <p className="text-lg text-slate-600 max-w-md mx-auto">
+            Create and edit beautiful HTML posters with our visual editor
+          </p>
+        </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <CanvasStage
-          htmlContent={htmlContent}
-          onSelect={setSelectedElement}
-          selectedElement={selectedElement}
-          onContentChange={handleContentChange}
-        />
-
-        <PropertiesPanel
-          selectedElement={selectedElement}
-          onContentChange={() => handleContentChange(stageContentRef.current)}
-        />
+        <Button
+          onClick={handleEnterApp}
+          size="lg"
+          className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-6 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 group"
+        >
+          Launch App
+          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </Button>
       </div>
-
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Element</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this element? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
