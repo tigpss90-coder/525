@@ -241,9 +241,6 @@ High-level modules depend on abstractions:
 
 ### Current Limitations
 
-1. **No Undo/Redo**: Changes are immediate and cannot be reverted
-   - Workaround: Re-import the original HTML file
-
 2. **Single Selection Only**: Cannot select and move multiple elements at once
    - Workaround: Move elements individually
 
