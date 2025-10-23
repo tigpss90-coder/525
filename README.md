@@ -4,17 +4,29 @@ A professional web application for importing, visually editing, and exporting HT
 
 ## Features
 
-- **HTML Import**: Upload `.html` files or paste HTML content directly
-- **Visual Canvas**: Fixed 720×720px editing stage with isolated styling
-- **Element Selection**: Click to select elements with visual highlighting
-- **Drag & Drop**: Reposition elements within the canvas using mouse interactions
+### Core Editing
+- **HTML Import**: Upload `.html` files or paste HTML content directly with beautiful dialog interface
+- **Visual Canvas**: Fixed 720×720px editing stage with gradient background and shadow effects
+- **Element Selection**: Click to select elements with blue outline and visual highlighting
+- **Drag & Drop**: Reposition elements within the canvas using smooth mouse interactions
 - **Text Editing**: Modify content, font size, color, and weight for text elements
-- **Image Replacement**: Upload new images or change URLs, dimensions, and alt text
+- **Image Editing**: Upload new images or change URLs, dimensions, and alt text
+- **Image Resize**: Drag corner and edge handles to resize images dynamically
 - **Add Elements**: Insert new text blocks and images dynamically
 - **Element Deletion**: Remove selected elements with confirmation dialog
 - **HTML Export**: Download edited content as `.html` with metadata tag
-- **Keyboard Shortcuts**: Delete key for element removal
-- tech Stack Verification
+- **Undo/Redo**: Full history management with undo and redo capabilities
+
+### Visual Enhancements
+- **Modern UI Design**: Gradient backgrounds, smooth animations, and polished interfaces
+- **Animated Landing Page**: Professional welcome screen with feature highlights
+- **Enhanced Properties Panel**: Beautiful card-based design with visual feedback
+- **Interactive Resize Handles**: Corner and edge handles for intuitive image resizing
+- **Status Indicators**: Live status and version display
+- **Color-Coded Actions**: Different hover colors for different action types
+- **Smooth Transitions**: Hover effects, scale transforms, and fade animations
+
+### Tech Stack Verification
 
 #FOLLOWING TECH STACKS CONFIRMED 
 

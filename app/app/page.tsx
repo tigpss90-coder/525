@@ -64,7 +64,7 @@ export default function AppPage() {
   };
 
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex bg-slate-50">
       <Toolbar
         onAddText={handleAddText}
         onAddImage={handleAddImage}

@@ -174,13 +174,21 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
 
   if (!selectedElement) {
     return (
-      <div className="w-80 bg-gray-50 border-l p-4">
-        <Card>
+      <div className="w-80 bg-gradient-to-b from-slate-50 to-white border-l border-slate-200 p-6">
+        <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle className="text-sm">Properties</CardTitle>
+            <CardTitle className="text-base font-semibold text-slate-900">Properties</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500">Select an element to edit its properties</p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+              </div>
+              <p className="text-sm text-slate-600 font-medium">No element selected</p>
+              <p className="text-xs text-slate-400 mt-1">Click on an element to edit</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -188,13 +196,18 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
   }
 
   return (
-    <div className="w-80 bg-gray-50 border-l p-4 overflow-auto">
-      <Card>
+    <div className="w-80 bg-gradient-to-b from-slate-50 to-white border-l border-slate-200 p-6 overflow-auto">
+      <Card className="shadow-sm border-slate-200">
         <CardHeader>
-          <CardTitle className="text-sm">Element Properties</CardTitle>
-          <p className="text-xs text-gray-500 mt-1">
-            {selectedElement.tagName} {selectedElement.id && `(${selectedElement.id})`}
-          </p>
+          <CardTitle className="text-base font-semibold text-slate-900">Element Properties</CardTitle>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {selectedElement.tagName.toLowerCase()}
+            </span>
+            {selectedElement.id && (
+              <span className="text-xs text-slate-500 font-mono">#{selectedElement.id}</span>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {selectedElement.isText && (
@@ -251,7 +264,10 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                 <p className="text-xs text-gray-500">Range: {DEFAULT_LIMITS.fontWeight.min}-{DEFAULT_LIMITS.fontWeight.max} (multiples of 100)</p>
               </div>
 
-              <Button onClick={handleTextUpdate} className="w-full">
+              <Button onClick={handleTextUpdate} className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm">
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 Apply Changes
               </Button>
             </>
@@ -315,7 +331,10 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
                 <p className="text-xs text-gray-500">Range: {DEFAULT_LIMITS.width.min}-{DEFAULT_LIMITS.width.max}px</p>
               </div>
 
-              <Button onClick={handleImageUpdate} className="w-full">
+              <Button onClick={handleImageUpdate} className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm">
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
                 Apply Changes
               </Button>
             </>
