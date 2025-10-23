@@ -7,6 +7,8 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { ImportPanel } from './ImportPanel';
 import { ImageUploadDialog } from './ImageUploadDialog';
+import { ElementTreePanel } from './ElementTreePanel';
+import { SelectedElement } from '@/lib/types';
 
 interface ToolbarProps {
   onAddText: () => void;
@@ -19,9 +21,13 @@ interface ToolbarProps {
   canUndo: boolean;
   canRedo: boolean;
   hasSelection: boolean;
+  htmlContent: string;
+  selectedElement: SelectedElement | null;
+  onSelect: (element: SelectedElement) => void;
+  stageRef: HTMLDivElement | null;
 }
 
-export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, onUndo, onRedo, canUndo, canRedo, hasSelection }: ToolbarProps) {
+export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, onUndo, onRedo, canUndo, canRedo, hasSelection, htmlContent, selectedElement, onSelect, stageRef }: ToolbarProps) {
   return (
     <aside className="w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white flex flex-col h-screen shadow-2xl">
       <div className="p-6 border-b border-slate-700/50">
@@ -85,6 +91,13 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, o
 
         <div className="space-y-2">
           <p className="text-xs font-semibold text-slate-400 px-3 mb-3 tracking-wider">TOOLS</p>
+
+          <ElementTreePanel
+            htmlContent={htmlContent}
+            selectedElement={selectedElement}
+            onSelect={onSelect}
+            stageRef={stageRef}
+          />
 
           <ImportPanel onImport={onImport} />
 

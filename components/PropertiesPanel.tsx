@@ -136,17 +136,25 @@ export function PropertiesPanel({ selectedElement, onContentChange }: Properties
       img.onload = () => {
         if (imageWidth && !isNaN(widthValue)) {
           img.width = widthValue;
+          img.style.width = `${widthValue}px`;
         }
         if (imageHeight && !isNaN(heightValue)) {
           img.height = heightValue;
+          img.style.height = `${heightValue}px`;
         }
         if (container) {
           onContentChange(container.innerHTML);
         }
       };
     } else {
-      if (imageWidth && !isNaN(widthValue)) img.width = widthValue;
-      if (imageHeight && !isNaN(heightValue)) img.height = heightValue;
+      if (imageWidth && !isNaN(widthValue)) {
+        img.width = widthValue;
+        img.style.width = `${widthValue}px`;
+      }
+      if (imageHeight && !isNaN(heightValue)) {
+        img.height = heightValue;
+        img.style.height = `${heightValue}px`;
+      }
       if (container) {
         onContentChange(container.innerHTML);
       }

@@ -5,7 +5,6 @@ import { ImportPanel } from '@/components/ImportPanel';
 import { Toolbar } from '@/components/Toolbar';
 import { CanvasStage } from '@/components/CanvasStage';
 import { PropertiesPanel } from '@/components/PropertiesPanel';
-import { ElementTreePanel } from '@/components/ElementTreePanel';
 import { SelectedElement } from '@/lib/types';
 import { exportToHTML, downloadHTML, generateUniqueId } from '@/lib/html-utils';
 import { useHistory } from '@/hooks/use-history';
@@ -80,16 +79,13 @@ export default function AppPage() {
         canUndo={canUndo}
         canRedo={canRedo}
         hasSelection={!!selectedElement}
+        htmlContent={htmlContent}
+        selectedElement={selectedElement}
+        onSelect={setSelectedElement}
+        stageRef={stageRef.current}
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <ElementTreePanel
-          htmlContent={htmlContent}
-          selectedElement={selectedElement}
-          onSelect={setSelectedElement}
-          stageRef={stageRef.current}
-        />
-
         <CanvasStage
           htmlContent={htmlContent}
           onSelect={setSelectedElement}
