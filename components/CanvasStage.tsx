@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { assignIdsToElements, isTextElement, isImageElement } from '@/lib/html-utils';
 import { SelectedElement } from '@/lib/types';
 import { ResizeHandles } from './ResizeHandles';
+import { AlignmentGuides } from './AlignmentGuides';
+import { getElementBounds, calculateSnapping, SnapGuide, ElementBounds } from '@/lib/snapping';
 
 interface CanvasStageProps {
   htmlContent: string;
@@ -18,6 +20,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [elementStart, setElementStart] = useState({ x: 0, y: 0 });
   const [elementRect, setElementRect] = useState<DOMRect | null>(null);
+  const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([]);
 
   useEffect(() => {
     if (stageRef.current && htmlContent) {
@@ -87,7 +90,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   }, [onSelect]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !selectedElement) return;
+    if (!isDragging || !selectedElement || !stageRef.current) return;
 
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
@@ -95,8 +98,39 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
     const newLeft = elementStart.x + deltaX;
     const newTop = elementStart.y + deltaY;
 
-    selectedElement.element.style.left = `${newLeft}px`;
-    selectedElement.element.style.top = `${newTop}px`;
+    const stageRect = stageRef.current.getBoundingClientRect();
+    const elementRect = selectedElement.element.getBoundingClientRect();
+
+    const targetBounds: ElementBounds = {
+      left: newLeft,
+      top: newTop,
+      right: newLeft + elementRect.width,
+      bottom: newTop + elementRect.height,
+      centerX: newLeft + elementRect.width / 2,
+      centerY: newTop + elementRect.height / 2,
+      width: elementRect.width,
+      height: elementRect.height,
+    };
+
+    const otherElements: ElementBounds[] = [];
+    if (stageRef.current) {
+      const children = Array.from(stageRef.current.children) as HTMLElement[];
+      children.forEach((child) => {
+        if (child !== selectedElement.element && child.id) {
+          otherElements.push(getElementBounds(child, stageRect));
+        }
+      });
+    }
+
+    const snapResult = calculateSnapping(targetBounds, otherElements, {
+      width: stageRect.width,
+      height: stageRect.height,
+    });
+
+    selectedElement.element.style.left = `${snapResult.x}px`;
+    selectedElement.element.style.top = `${snapResult.y}px`;
+
+    setSnapGuides(snapResult.guides);
   }, [isDragging, selectedElement, dragStart, elementStart]);
 
   const handleMouseUp = useCallback(() => {
@@ -104,6 +138,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
       onContentChange(stageRef.current.innerHTML);
     }
     setIsDragging(false);
+    setSnapGuides([]);
   }, [isDragging, onContentChange]);
 
   useEffect(() => {
@@ -181,6 +216,24 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
               onResize={handleResize}
               onResizeEnd={handleResizeEnd}
             />
+          )}
+
+          {stageRef.current && snapGuides.length > 0 && (
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                top: 0,
+                left: 0,
+                width: '720px',
+                height: '720px',
+              }}
+            >
+              <AlignmentGuides
+                guides={snapGuides}
+                canvasWidth={720}
+                canvasHeight={720}
+              />
+            </div>
           )}
         </div>
 
