@@ -12,6 +12,7 @@ A professional web application for importing, visually editing, and exporting HT
 - **Text Editing**: Modify content, font size, color, and weight for text elements
 - **Image Editing**: Upload new images or change URLs, dimensions, and alt text
 - **Image Resize**: Drag corner and edge handles to resize images dynamically
+- **Snapping & Alignment**: Smart snapping to canvas edges, center, and other elements with visual guide lines
 - **Add Elements**: Insert new text blocks and images dynamically
 - **Element Deletion**: Remove selected elements with confirmation dialog
 - **HTML Export**: Download edited content as `.html` with metadata tag
@@ -156,15 +157,23 @@ project/
 │   ├── page.tsx            # Main application component
 │   └── globals.css         # Global styles and CSS variables
 ├── components/
+│   ├── AlignmentGuides.tsx # Visual alignment guides during drag
 │   ├── CanvasStage.tsx     # 720×720 editing canvas
+│   ├── ImageUploadDialog.tsx # Image upload modal interface
 │   ├── ImportPanel.tsx     # File upload and paste interface
 │   ├── PropertiesPanel.tsx # Element property editor
+│   ├── ResizeHandles.tsx   # Image resize handles
 │   ├── Toolbar.tsx         # Action buttons (add, delete, export)
 │   └── ui/                 # shadcn/ui component library
+├── hooks/
+│   ├── use-history.ts      # Undo/redo history management
+│   └── use-toast.ts        # Toast notification hook
 └── lib/
     ├── html-utils.ts       # HTML manipulation utilities
+    ├── snapping.ts         # Snapping and alignment calculations
     ├── types.ts            # TypeScript type definitions
-    └── utils.ts            # General utility functions
+    ├── utils.ts            # General utility functions
+    └── validation.ts       # Input validation utilities
 ```
 
 ### SOLID Design Principles
@@ -173,10 +182,14 @@ project/
 Each component and module has one clear responsibility:
 
 - **`ImportPanel`**: Handles HTML import (file upload and paste)
-- **`CanvasStage`**: Manages the editing canvas, element selection, and drag interactions
+- **`CanvasStage`**: Manages the editing canvas, element selection, and drag interactions with snapping
 - **`PropertiesPanel`**: Displays and edits properties of selected elements
 - **`Toolbar`**: Provides action buttons for adding, deleting, and exporting
+- **`ResizeHandles`**: Manages image resize interactions with 8 directional handles
+- **`AlignmentGuides`**: Renders visual guide lines during drag operations
 - **`html-utils.ts`**: Contains pure functions for HTML manipulation (sanitization, export, ID generation)
+- **`snapping.ts`**: Pure functions for calculating snap positions and detecting alignment
+- **`use-history.ts`**: Custom hook implementing command pattern for undo/redo
 
 #### 2. Open/Closed Principle (OCP)
 The application is open for extension but closed for modification:
@@ -184,6 +197,8 @@ The application is open for extension but closed for modification:
 - Element types (text, image) can be extended by adding new handlers in `html-utils.ts`
 - New element properties can be added to `PropertiesPanel` without modifying core logic
 - The sanitization function can be enhanced with additional rules without changing its interface
+- Snapping behavior can be extended with new snap points without modifying the core algorithm
+- New resize handle types can be added without changing the existing resize logic
 
 #### 3. Liskov Substitution Principle (LSP)
 Components accept standard React prop interfaces:
@@ -226,6 +241,9 @@ High-level modules depend on abstractions:
 - Direct DOM manipulation for drag operations (no re-renders during drag)
 - `useCallback` hooks to prevent unnecessary function recreations
 - Event listener cleanup in `useEffect` return functions
+- Snap calculations only run during active drag operations
+- Guide rendering is conditional and only active when snapping occurs
+- History snapshots use efficient string comparison for change detection
 
 ### Component Interaction Flow
 
@@ -259,26 +277,26 @@ High-level modules depend on abstractions:
 3. **Limited Style Controls**: Only font size, color, and weight are editable
    - Other CSS properties require manual HTML editing
 
-4. **No Alignment Guides**: No snapping or alignment assistance
-   - Manual positioning requires precision
-
-5. **No Element Layering Control**: Cannot change z-index or layer order
+4. **No Element Layering Control**: Cannot change z-index or layer order
    - Element stacking is determined by DOM order
 
-6. **No Copy/Paste**: Cannot duplicate elements within the editor
+5. **No Copy/Paste**: Cannot duplicate elements within the editor
    - Workaround: Add new elements and configure them manually
 
-7. **Fixed Canvas Size**: 720×720px cannot be changed
+6. **Fixed Canvas Size**: 720×720px cannot be changed
    - Designed specifically for poster-size content
 
-8. **No Zoom/Pan**: Canvas is displayed at 100% scale only
+7. **No Zoom/Pan**: Canvas is displayed at 100% scale only
    - May be difficult on smaller screens
 
-9. **Limited Nested Element Support**: Deeply nested elements may not be individually selectable
+8. **Limited Nested Element Support**: Deeply nested elements may not be individually selectable
    - Selection prioritizes top-level children
 
-10. **No Save/Load Sessions**: Cannot save work-in-progress
-    - Must export and re-import HTML to continue later
+9. **No Save/Load Sessions**: Cannot save work-in-progress
+   - Must export and re-import HTML to continue later
+
+10. **Snapping on Single Axis**: Only one snap point per axis is detected
+    - Cannot simultaneously align to multiple references
 
 ### Browser Compatibility
 
@@ -290,22 +308,18 @@ High-level modules depend on abstractions:
 
 ### High Priority
 
-1. **Undo/Redo System**
-   - Implement command pattern with history stack
-   - Store snapshots of DOM state before each change
-   - Keyboard shortcuts (Ctrl+Z, Ctrl+Y)
-
-2. **Multi-Select & Group Operations**
+1. **Multi-Select & Group Operations**
    - Shift+Click for multi-selection
    - Group move, delete, and style changes
    - Bounding box around selected elements
 
-3. **Alignment & Snapping**
-   - Guide lines when elements align
+2. **Enhanced Snapping System**
    - Snap to grid (configurable size)
-   - Snap to other elements
+   - Multiple simultaneous snap points
+   - Distance indicators between elements
+   - Configurable snap threshold
 
-4. **Enhanced Property Editing**
+3. **Enhanced Property Editing**
    - Background color and borders
    - Padding and margin controls
    - Box shadow and border radius
@@ -313,69 +327,70 @@ High-level modules depend on abstractions:
 
 ### Medium Priority
 
-5. **Layering Controls**
+4. **Layering Controls**
    - Bring to front / Send to back
    - Move up / Move down
    - Visual layer panel showing element hierarchy
 
-6. **Copy/Paste & Duplicate**
+5. **Copy/Paste & Duplicate**
    - Clipboard operations for elements
    - Duplicate button in toolbar
    - Keyboard shortcuts (Ctrl+C, Ctrl+V, Ctrl+D)
 
-7. **Canvas Controls**
+6. **Canvas Controls**
    - Zoom in/out (25%-200%)
    - Pan with space bar + drag
    - Fit to screen option
+   - Snap guides should scale with zoom level
 
-8. **Save/Load Sessions**
+7. **Save/Load Sessions**
    - LocalStorage for auto-save
    - Named project saves
    - Export/import project files (JSON)
 
-9. **Element Tree Panel**
+8. **Element Tree Panel**
    - Hierarchical view of all elements
    - Click to select in tree
    - Rename elements for organization
 
 ### Low Priority / Nice-to-Have
 
-10. **Template Library**
+9. **Template Library**
     - Pre-built poster templates
     - Categorized by use case
     - One-click import
 
-11. **Advanced Text Editing**
+10. **Advanced Text Editing**
     - Rich text editing (bold, italic, underline)
     - Google Fonts integration
     - Text effects and shadows
 
-12. **Image Filters**
+11. **Image Filters**
     - Brightness, contrast, saturation
     - CSS filters (blur, grayscale, sepia)
     - Crop and rotate
 
-13. **Export Options**
+12. **Export Options**
     - Export as PNG/JPG image
     - Export as PDF
     - Configurable export quality
 
-14. **Responsive Preview**
+13. **Responsive Preview**
     - Preview at different viewport sizes
     - Mobile/tablet/desktop views
 
-15. **Collaboration Features**
+14. **Collaboration Features**
     - Real-time multi-user editing
     - Comments and annotations
     - Version history
 
-16. **Accessibility Enhancements**
+15. **Accessibility Enhancements**
     - Keyboard-only navigation
     - Screen reader support
     - ARIA labels and roles
     - Focus indicators
 
-17. **Performance Optimizations**
+16. **Performance Optimizations**
     - Virtual DOM for large documents
     - Canvas rendering for smoother interactions
     - Web Workers for heavy operations
@@ -392,6 +407,12 @@ High-level modules depend on abstractions:
 - [ ] Select image elements and upload new image
 - [ ] Select image elements and change dimensions
 - [ ] Drag elements to new positions
+- [ ] Verify snapping works when dragging near canvas edges
+- [ ] Verify snapping works when dragging near canvas center
+- [ ] Verify snapping works when dragging near other elements
+- [ ] Verify alignment guides appear and disappear correctly
+- [ ] Resize images using corner handles
+- [ ] Resize images using edge handles
 - [ ] Add new text block and verify it's editable
 - [ ] Add new image and verify it's editable
 - [ ] Delete element using toolbar button
