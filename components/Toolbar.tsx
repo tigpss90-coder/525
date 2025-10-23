@@ -1,15 +1,16 @@
 'use client';
 
-import { Type, ImageIcon, Trash2, Download, FileUp, Home, Undo, Redo } from 'lucide-react';
+import { Type, Trash2, Download, Home, Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { ImportPanel } from './ImportPanel';
+import { ImageUploadDialog } from './ImageUploadDialog';
 
 interface ToolbarProps {
   onAddText: () => void;
-  onAddImage: () => void;
+  onAddImage: (imageUrl: string) => void;
   onDelete: () => void;
   onExport: () => void;
   onImport: (html: string) => void;
@@ -25,12 +26,13 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, o
     <aside className="w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white flex flex-col h-screen shadow-2xl">
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 p-2 shadow-lg">
+          <div className="relative w-12 h-12 rounded-xl bg-white p-2 shadow-lg">
             <NextImage
-              src="/image.png"
+              src="/image copy.png"
               alt="SOL Logo"
-              fill
-              className="object-contain p-1"
+              width={48}
+              height={48}
+              className="object-contain"
             />
           </div>
           <div>
@@ -95,14 +97,7 @@ export function Toolbar({ onAddText, onAddImage, onDelete, onExport, onImport, o
             Add Text
           </Button>
 
-          <Button
-            variant="ghost"
-            onClick={onAddImage}
-            className="w-full justify-start text-slate-300 hover:bg-cyan-600/20 hover:text-cyan-300 transition-all duration-200 group"
-          >
-            <ImageIcon className="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" />
-            Add Image
-          </Button>
+          <ImageUploadDialog onAddImage={onAddImage} />
 
           <Button
             variant="ghost"

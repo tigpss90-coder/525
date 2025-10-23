@@ -36,9 +36,9 @@ export default function AppPage() {
     setHtmlContent(updatedContent);
   };
 
-  const handleAddImage = () => {
+  const handleAddImage = (imageUrl: string) => {
     const newImageId = generateUniqueId();
-    const newImage = `<img id="${newImageId}" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=300&h=300&fit=crop" alt="Placeholder" style="position: absolute; left: 100px; top: 100px; width: 200px; height: 200px; object-fit: cover;" />`;
+    const newImage = `<img id="${newImageId}" src="${imageUrl}" alt="Image" style="position: absolute; left: 100px; top: 100px; width: 200px; height: 200px; object-fit: cover;" />`;
     const updatedContent = stageContentRef.current + newImage;
     setHtmlContent(updatedContent);
   };
