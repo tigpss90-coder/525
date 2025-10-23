@@ -5,6 +5,7 @@ import { ImportPanel } from '@/components/ImportPanel';
 import { Toolbar } from '@/components/Toolbar';
 import { CanvasStage } from '@/components/CanvasStage';
 import { PropertiesPanel } from '@/components/PropertiesPanel';
+import { ElementTreePanel } from '@/components/ElementTreePanel';
 import { SelectedElement } from '@/lib/types';
 import { exportToHTML, downloadHTML, generateUniqueId } from '@/lib/html-utils';
 import { useHistory } from '@/hooks/use-history';
@@ -14,6 +15,7 @@ export default function AppPage() {
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const stageContentRef = useRef('');
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const { state: htmlContent, set: setHtmlContent, undo, redo, canUndo, canRedo, reset } = useHistory('');
 
   useEffect(() => {
@@ -36,9 +38,11 @@ export default function AppPage() {
     setHtmlContent(updatedContent);
   };
 
-  const handleAddImage = (imageUrl: string) => {
+  const handleAddImage = (imageUrl: string, width?: number, height?: number) => {
     const newImageId = generateUniqueId();
-    const newImage = `<img id="${newImageId}" src="${imageUrl}" alt="Image" style="position: absolute; left: 100px; top: 100px; width: 200px; height: 200px; object-fit: cover;" />`;
+    const widthStyle = width ? `${width}px` : '200px';
+    const heightStyle = height ? `${height}px` : '200px';
+    const newImage = `<img id="${newImageId}" src="${imageUrl}" alt="Image" style="position: absolute; left: 100px; top: 100px; width: ${widthStyle}; height: ${heightStyle}; object-fit: cover;" />`;
     const updatedContent = stageContentRef.current + newImage;
     setHtmlContent(updatedContent);
   };
@@ -79,11 +83,19 @@ export default function AppPage() {
       />
 
       <div className="flex flex-1 overflow-hidden">
+        <ElementTreePanel
+          htmlContent={htmlContent}
+          selectedElement={selectedElement}
+          onSelect={setSelectedElement}
+          stageRef={stageRef.current}
+        />
+
         <CanvasStage
           htmlContent={htmlContent}
           onSelect={setSelectedElement}
           selectedElement={selectedElement}
           onContentChange={handleContentChange}
+          stageRef={stageRef}
         />
 
         <PropertiesPanel

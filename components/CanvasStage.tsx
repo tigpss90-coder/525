@@ -12,10 +12,11 @@ interface CanvasStageProps {
   onSelect: (element: SelectedElement | null) => void;
   selectedElement: SelectedElement | null;
   onContentChange: (html: string) => void;
+  stageRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
-export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentChange }: CanvasStageProps) {
-  const stageRef = useRef<HTMLDivElement>(null);
+export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentChange, stageRef: externalStageRef }: CanvasStageProps) {
+  const localStageRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [elementStart, setElementStart] = useState({ x: 0, y: 0 });
@@ -23,11 +24,12 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([]);
 
   useEffect(() => {
-    if (stageRef.current && htmlContent) {
-      stageRef.current.innerHTML = htmlContent;
-      assignIdsToElements(stageRef.current);
+    if (localStageRef.current && htmlContent) {
+      localStageRef.current.innerHTML = htmlContent;
+      assignIdsToElements(localStageRef.current);
+      externalStageRef.current = localStageRef.current;
 
-      stageRef.current.querySelectorAll('*').forEach(el => {
+      localStageRef.current.querySelectorAll('*').forEach(el => {
         const htmlEl = el as HTMLElement;
         if (!htmlEl.style.position || htmlEl.style.position === 'static') {
           const computedStyle = window.getComputedStyle(htmlEl);
@@ -50,17 +52,17 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    if (target === stageRef.current) {
+    if (target === localStageRef.current) {
       onSelect(null);
       return;
     }
 
     let clickedElement = target;
-    while (clickedElement && clickedElement.parentElement !== stageRef.current) {
+    while (clickedElement && clickedElement.parentElement !== localStageRef.current) {
       clickedElement = clickedElement.parentElement as HTMLElement;
     }
 
-    if (clickedElement && clickedElement !== stageRef.current) {
+    if (clickedElement && clickedElement !== localStageRef.current) {
       e.stopPropagation();
 
       const selection: SelectedElement = {
@@ -90,7 +92,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   }, [onSelect]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !selectedElement || !stageRef.current) return;
+    if (!isDragging || !selectedElement || !localStageRef.current) return;
 
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
@@ -98,7 +100,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
     const newLeft = elementStart.x + deltaX;
     const newTop = elementStart.y + deltaY;
 
-    const stageRect = stageRef.current.getBoundingClientRect();
+    const stageRect = localStageRef.current.getBoundingClientRect();
     const elementRect = selectedElement.element.getBoundingClientRect();
 
     const targetBounds: ElementBounds = {
@@ -113,8 +115,8 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
     };
 
     const otherElements: ElementBounds[] = [];
-    if (stageRef.current) {
-      const children = Array.from(stageRef.current.children) as HTMLElement[];
+    if (localStageRef.current) {
+      const children = Array.from(localStageRef.current.children) as HTMLElement[];
       children.forEach((child) => {
         if (child !== selectedElement.element && child.id) {
           otherElements.push(getElementBounds(child, stageRect));
@@ -134,8 +136,8 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   }, [isDragging, selectedElement, dragStart, elementStart]);
 
   const handleMouseUp = useCallback(() => {
-    if (isDragging && stageRef.current) {
-      onContentChange(stageRef.current.innerHTML);
+    if (isDragging && localStageRef.current) {
+      onContentChange(localStageRef.current.innerHTML);
     }
     setIsDragging(false);
     setSnapGuides([]);
@@ -157,8 +159,8 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
       if (e.key === 'Delete' && selectedElement) {
         selectedElement.element.remove();
         onSelect(null);
-        if (stageRef.current) {
-          onContentChange(stageRef.current.innerHTML);
+        if (localStageRef.current) {
+          onContentChange(localStageRef.current.innerHTML);
         }
       }
     };
@@ -180,8 +182,8 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
   }, [selectedElement]);
 
   const handleResizeEnd = useCallback(() => {
-    if (stageRef.current) {
-      onContentChange(stageRef.current.innerHTML);
+    if (localStageRef.current) {
+      onContentChange(localStageRef.current.innerHTML);
     }
   }, [onContentChange]);
 
@@ -190,7 +192,7 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
       <div className="flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-slate-100 flex-1 overflow-auto">
         <div className="relative">
           <div
-            ref={stageRef}
+            ref={localStageRef}
             className="relative bg-white shadow-2xl cursor-pointer rounded-lg overflow-hidden border border-slate-200"
             style={{
               width: '720px',
@@ -209,16 +211,16 @@ export function CanvasStage({ htmlContent, onSelect, selectedElement, onContentC
             )}
           </div>
 
-          {selectedElement && elementRect && selectedElement.isImage && stageRef.current && (
+          {selectedElement && elementRect && selectedElement.isImage && localStageRef.current && (
             <ResizeHandles
               element={selectedElement.element}
-              stageRef={stageRef.current}
+              stageRef={localStageRef.current}
               onResize={handleResize}
               onResizeEnd={handleResizeEnd}
             />
           )}
 
-          {stageRef.current && snapGuides.length > 0 && (
+          {localStageRef.current && snapGuides.length > 0 && (
             <div
               className="absolute pointer-events-none"
               style={{

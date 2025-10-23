@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ImageUploadDialogProps {
-  onAddImage: (imageUrl: string) => void;
+  onAddImage: (imageUrl: string, width?: number, height?: number) => void;
 }
 
 export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
@@ -18,6 +18,8 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
   const [uploadedImage, setUploadedImage] = useState<string>('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [customWidth, setCustomWidth] = useState('');
+  const [customHeight, setCustomHeight] = useState('');
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,9 +79,13 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
         return;
       }
 
-      onAddImage(imageUrl);
+      const width = customWidth ? parseInt(customWidth) : undefined;
+      const height = customHeight ? parseInt(customHeight) : undefined;
+      onAddImage(imageUrl, width, height);
       setIsOpen(false);
       setImageUrl('');
+      setCustomWidth('');
+      setCustomHeight('');
       setError('');
     } catch (err) {
       setError('Failed to validate image URL');
@@ -94,9 +100,13 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
       return;
     }
 
-    onAddImage(uploadedImage);
+    const width = customWidth ? parseInt(customWidth) : undefined;
+    const height = customHeight ? parseInt(customHeight) : undefined;
+    onAddImage(uploadedImage, width, height);
     setIsOpen(false);
     setUploadedImage('');
+    setCustomWidth('');
+    setCustomHeight('');
     setError('');
   };
 
@@ -104,6 +114,8 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
     setIsOpen(false);
     setImageUrl('');
     setUploadedImage('');
+    setCustomWidth('');
+    setCustomHeight('');
     setError('');
   };
 
@@ -151,6 +163,36 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
                 }}
                 className="w-full"
               />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="custom-width" className="text-sm font-semibold">
+                    Width (px)
+                  </Label>
+                  <Input
+                    id="custom-width"
+                    type="number"
+                    placeholder="Auto"
+                    value={customWidth}
+                    onChange={(e) => setCustomWidth(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="custom-height" className="text-sm font-semibold">
+                    Height (px)
+                  </Label>
+                  <Input
+                    id="custom-height"
+                    type="number"
+                    placeholder="Auto"
+                    value={customHeight}
+                    onChange={(e) => setCustomHeight(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
               {imageUrl && (
                 <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <p className="text-sm text-slate-600 mb-2">Preview:</p>
@@ -182,6 +224,36 @@ export function ImageUploadDialog({ onAddImage }: ImageUploadDialogProps) {
                   Supported formats: JPG, PNG, GIF, WebP (Max 5MB)
                 </p>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="upload-width" className="text-sm font-semibold">
+                    Width (px)
+                  </Label>
+                  <Input
+                    id="upload-width"
+                    type="number"
+                    placeholder="Auto"
+                    value={customWidth}
+                    onChange={(e) => setCustomWidth(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="upload-height" className="text-sm font-semibold">
+                    Height (px)
+                  </Label>
+                  <Input
+                    id="upload-height"
+                    type="number"
+                    placeholder="Auto"
+                    value={customHeight}
+                    onChange={(e) => setCustomHeight(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
               {uploadedImage && (
                 <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <p className="text-sm text-slate-600 mb-2">Preview:</p>
